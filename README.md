@@ -18,7 +18,7 @@
 avrdude: ser_open(): can't open device "/dev/ttyUSB0": Permission denied
 Failed uploading: uploading error: exit status 1
 Ensure that the user you're using has permission to access the serial port. You can add your user to the `dialout` group, which typically has access to serial ports:
-```bash
+```zsh
 sudo usermod -a -G dialout $USER
 ```
 After running this command, restart your Arduino IDE.
