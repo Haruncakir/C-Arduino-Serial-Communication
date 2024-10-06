@@ -15,8 +15,10 @@
 2. Upload the Arduino code to your Arduino port. (Ensure to check the LED pins and their connections. They are defined at the beginning of the Arduino code. Change them if necessary.)
 
 **For Linux users:** If you encounter an error when uploading the sketch to the Arduino:
+```bash
 avrdude: ser_open(): can't open device "/dev/ttyUSB0": Permission denied
 Failed uploading: uploading error: exit status 1
+```
 Ensure that the user you're using has permission to access the serial port. You can add your user to the `dialout` group, which typically has access to serial ports:
 ```ohmyzsh
 sudo usermod -a -G dialout $USER
@@ -35,8 +37,9 @@ ls /dev/ttyUSB*
 If you see multiple ports, try using the one that corresponds to your Arduino.
 
 **For Windows users:** If you encounter an error when uploading the sketch to the Arduino:
+```powershell
 avrdude: ser_open(): can't open device "COM1": Access is denied.
-
+```
 To fix this issue, you can grant your user account permission to access the COM port:
 
 1. Right-click on the Start menu and select "Device Manager".
