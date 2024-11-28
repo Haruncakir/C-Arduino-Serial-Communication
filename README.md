@@ -37,7 +37,7 @@ See the complete circuit diagram and simulation at: [Wokwi Arduino Simulator](wo
 ```bash
 # Clone repository
 git clone https://github.com/Haruncakir/C-Arduino-Serial-Communication.git
-cd arduino-led-control
+cd C-Arduino-Serial-Communication/src
 
 # Build program
 gcc -o led_control main.c serial_functions.c
@@ -113,7 +113,7 @@ Enter a number (1-5) and press Enter to control LEDs.
 Requirements:
 - GCC compiler
 - Make (optional)
-- Git (for cloning)
+- Git
 
 ```bash
 # Clone with submodules

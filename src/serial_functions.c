@@ -3,7 +3,7 @@
  * @brief Implementation of cross-platform serial communication interface
  */
 
-#include "serial_functions.h"
+#include "../include/serial_functions.h"
 #include <errno.h>
 #include <string.h>
 

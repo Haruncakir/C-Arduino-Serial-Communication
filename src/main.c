@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "serial_functions.h"
+#include "../include/serial_functions.h"
 
 #if defined(__linux__)
     #include <unistd.h>
