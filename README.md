@@ -29,7 +29,14 @@ To compile and run the C code:
 ```bash
 gcc -o main main.c serial_functions.c && ./main your_port_name
 ```
-
+e.g. (linux)
+```bash
+gcc -o main main.c serial_functions.c && ./main /dev/ttyACM0
+```
+e.g. (windows)
+```bash
+gcc -o main main.c serial_functions.c && ./main COM3
+```
 You can find your port name in Linux with:
 ```bash
 ls /dev/ttyUSB*
