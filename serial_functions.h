@@ -1,65 +1,92 @@
+/**
+ * @file serial_functions.h
+ * @brief Cross-platform serial communication interface
+ *
+ * This header provides a platform-independent interface for serial communication
+ * on both Linux and Windows systems.
+ */
+
 #ifndef SERIAL_FUNCTIONS_H_
 #define SERIAL_FUNCTIONS_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Platform-specific includes and definitions */
 #if defined(__linux__)
     #include <termios.h>
     #include <unistd.h>
     #include <fcntl.h>
-    typedef unsigned int size_;
-    #define SIZE size_
-    #define OPEN_SERIAL_PORT(path) open(path, O_RDWR | O_NOCTTY | O_NONBLOCK)
-    #define CLOSE_SERIAL_PORT(fd) close(fd)
-    #define FD int
-    #define ERROR_FD -1;
-    #define OPTIONS struct termios
-    #define TIMEOUT struct timeval
-    #define GET_SERIAL_PARAMS(fd, options) tcgetattr(fd, &options)
-    #define SET_SERIAL_PARAMS(fd, options) tcsetattr(fd, TCSANOW, &options)
-    #define BYTES_READ int
-    #define ABLE_TO_GET_SERIAL_PORT_STATE 0
-    #define ADJUST_OPTIONS_ATTRS(options)             \
-            {                                         \
-              options.c_cflag = CS8 | CREAD | CLOCAL; \
-              options.c_iflag = IGNPAR;               \
-              options.c_oflag = 0;                    \
-              options.c_lflag = 0;                    \
-              cfsetospeed(&options, B9600);           \
-              cfsetispeed(&options, B9600);           \
-            }
-    #define UNABLE_TO_OPEN_PORT -1
-    #define UNABLE_TO_READ UNABLE_TO_OPEN_PORT
-    #define WRITE(fd, command, size_type) write(fd, command, size_type)
-    #define READ(fd, buffer, buffer_size, bytes_read) bytes_read = read(fd, buffer, buffer_size)
+    typedef int serial_handle_t;
+    #define SERIAL_INVALID_HANDLE (-1)
 #elif defined(_WIN32)
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
-    #define SIZE DWORD
-    #define OPEN_SERIAL_PORT(path) CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)
-    #define CLOSE_SERIAL_PORT(fd) CloseHandle(fd)
-    #define UNABLE_TO_OPEN_PORT INVALID_HANDLE_VALUE
-    #define UNABLE_TO_READ UNABLE_TO_OPEN_PORT
-    #define OPTIONS DCB
-    #define FD HANDLE
-    #define ERROR_FD NULL
-    #define GET_SERIAL_PARAMS(fd, options) GetCommState(fd, &options)
-    #define SET_SERIAL_PARAMS(fd, options) SetCommState(fd, &options)
-    #define ABLE_TO_GET_SERIAL_PORT_STATE TRUE
-    #define ADJUST_OPTIONS_ATTRS(options)         \
-            {                                     \
-              options.BaudRate = CBR_9600;        \
-              options.ByteSize = 8;               \
-              options.StopBits = ONE_STOP_BIT;    \
-              options.Parity   = NOPARITY;        \
-            }
-    #define TIMEOUT COMMTIMEOUTS
-    #define BYTES_READ DWORD
-    #define WRITE(fd, command, size_type) WriteFile(fd, command, 1, size_type ,NULL)
-    #define READ(fd, buffer, buffer_size, bytes_read) ReadFile(fd, buffer, buffer_size, &bytes_read, NULL)
+    typedef HANDLE serial_handle_t;
+    #define SERIAL_INVALID_HANDLE INVALID_HANDLE_VALUE
+#else
+    #error "Unsupported platform"
 #endif
 
-extern FD open_serial_port(const char* filename);
-extern void close_serial_port(FD serial_port);
-extern void serial_write(FD serial_port, char* command);
-extern void serial_read(FD serial_port);
+/* Error codes */
+enum serial_error_e {
+    SERIAL_SUCCESS = 0,
+    SERIAL_ERROR_OPEN = -1,
+    SERIAL_ERROR_CONFIG = -2,
+    SERIAL_ERROR_READ = -3,
+    SERIAL_ERROR_WRITE = -4,
+    SERIAL_ERROR_INVALID_HANDLE = -5
+};
 
-#endif // SERIAL_FUNCTIONS_H_
+/* Serial port configuration structure */
+struct serial_config_s {
+    uint32_t baud_rate;
+    uint8_t data_bits;
+    uint8_t stop_bits;
+    uint8_t parity;
+};
+
+/**
+ * @brief Opens and configures a serial port
+ * @param port_name Path to the serial port (e.g., "/dev/ttyUSB0" or "COM1")
+ * @param config Pointer to configuration structure (NULL for default 9600-8N1)
+ * @return Handle to the serial port or SERIAL_INVALID_HANDLE on error
+ */
+serial_handle_t serial_open(const char *port_name, const struct serial_config_s *config);
+
+/**
+ * @brief Closes a serial port
+ * @param handle Valid serial port handle
+ * @return SERIAL_SUCCESS or error code
+ */
+int serial_close(serial_handle_t handle);
+
+/**
+ * @brief Writes data to a serial port
+ * @param handle Valid serial port handle
+ * @param data Pointer to data buffer
+ * @param size Size of data to write
+ * @param bytes_written Pointer to store number of bytes written
+ * @return SERIAL_SUCCESS or error code
+ */
+int serial_write(serial_handle_t handle, const void *data, size_t size, size_t *bytes_written);
+
+/**
+ * @brief Reads data from a serial port
+ * @param handle Valid serial port handle
+ * @param buffer Pointer to receive buffer
+ * @param size Maximum size to read
+ * @param bytes_read Pointer to store number of bytes read
+ * @return SERIAL_SUCCESS or error code
+ */
+int serial_read(serial_handle_t handle, void *buffer, size_t size, size_t *bytes_read);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* SERIAL_FUNCTIONS_H_ */
